@@ -1,0 +1,11 @@
+version: '3.0'
+
+services:
+  servidor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 'jean/conteo'
+    ports:
+      - '8080:8080'
+    command: python server.py
