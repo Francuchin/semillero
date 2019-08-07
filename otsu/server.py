@@ -19,7 +19,7 @@ class StoreHandler(BaseHTTPRequestHandler):
             form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD': 'POST'})
             filename = form['file'].filename
             estudio = form['estudio'].value
-            muestras = [(0,0,250,250)]#form['muestras'].value
+            self.muestras = {0:(0,0,250,250)}#form['muestras'].value
             data = form['file'].file.read()
             open("/tmp/%s"%filename, "wb").write(data)
             self.ruta = "/tmp/%s"%filename # 742 semillas contadas a mano en 20 minutos
@@ -28,11 +28,33 @@ class StoreHandler(BaseHTTPRequestHandler):
             self.prom, self.std = 1, 0
             self.umbral_otsu = 0.5
             self.regiones = self.seguras = self.inseguras = []
+            p = []
+            s = []
+            u = []
+            for i in dict(self.muestras):
+                _p,_s = self.GetArea_mean_std(self.muestras[i])
+                u.append(umbral_otsu(np.asarray(self.img.crop(self.muestras[i]).convert('L'))))
+                p.append(_p)
+                s.append(_s)
+            self.prom, self.std = np.mean(p) , np.mean(s)
+            self.umbral_otsu = np.mean(u)
+            self.regiones = otsu(self.img_ski,self.umbral_otsu)
+            self.seguras, self.inseguras = contar(self.regiones, self.prom, self.std)
+            self.inseguras = sorted(self.inseguras, key=lambda x: x.area, reverse=False)
 
-            datos={"estudio":estudio}
+            datos={
+                "estudio":estudio,
+                "seguras":self.seguras, 
+                "inseguras":self.inseguras
+                }
             json_response=json.dumps(datos, ensure_ascii=False)
             self.respond(json_response,"application/json")
 
+    def GetArea_mean_std(self, muestra):
+        img_binary = np.asarray(self.img.crop(muestra).convert('L'))
+        regiones = otsu(img_binary)
+        areas = [r.area for r in regiones]
+        return np.mean(areas), np.std(areas)
     def do_GET(self):
         response = """
         <html><body>
