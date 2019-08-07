@@ -19,7 +19,7 @@ class StoreHandler(BaseHTTPRequestHandler):
             form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD': 'POST'})
             filename = form['file'].filename
             estudio = form['estudio'].value
-            self.muestras = {0:(0,0,250,250)}#form['muestras'].value
+            self.muestras = {0:(50,50,550,900)}#form['muestras'].value
             data = form['file'].file.read()
             open("/tmp/%s"%filename, "wb").write(data)
             self.ruta = "/tmp/%s"%filename # 742 semillas contadas a mano en 20 minutos
@@ -44,9 +44,10 @@ class StoreHandler(BaseHTTPRequestHandler):
 
             datos={
                 "estudio":estudio,
-                "seguras":self.seguras, 
-                "inseguras":self.inseguras
+                "seguras":len(self.seguras), 
+                "inseguras":len(self.inseguras)
                 }
+            print(datos)
             json_response=json.dumps(datos, ensure_ascii=False)
             self.respond(json_response,"application/json")
 
