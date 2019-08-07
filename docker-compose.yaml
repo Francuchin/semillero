@@ -8,4 +8,8 @@ services:
     image: 'jean/conteo'
     ports:
       - '8080:8080'
-    command: python server.py
+    volumes:
+      - ./imagenes:/tmp/:rw
+    command: python3 server.py
+    environment:
+      PYTHONUNBUFFERED : 1

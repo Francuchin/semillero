@@ -1,29 +1,22 @@
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import cgi
-
+import time
 from semillas import contar
 from image import *
+from io import BytesIO
 
 class StoreHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        print self.headers['content-length']
         length = int(self.headers['content-length'])
-        print length
         if length > 10000000:
-            print "file to big"
             read = 0
             while read < length:
                 read += len(self.rfile.read(min(66556, length - read)))
             self.respond("file to big")
             return
         else:
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={'REQUEST_METHOD':'POST',
-                         'CONTENT_TYPE':self.headers['Content-Type'],
-                         })
+            form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD': 'POST'})
             filename = form['file'].filename
             estudio = form['estudio'].value
             muestras = [(0,0,250,250)]#form['muestras'].value
@@ -35,24 +28,10 @@ class StoreHandler(BaseHTTPRequestHandler):
             self.prom, self.std = 1, 0
             self.umbral_otsu = 0.5
             self.regiones = self.seguras = self.inseguras = []
-            p = []
-            s = []
-            u = []
-            for i in dict(self.muestras):
-            	_p,_s = self.GetArea_mean_std(self.muestras[i])
-            	u.append(umbral_otsu(np.asarray(self.img_orig.crop(self.muestras[i]).convert('L'))))
-            	p.append(_p)
-            	s.append(_s)
-            self.prom, self.std = np.mean(p) , np.mean(s)
-            self.umbral_otsu = np.mean(u)
-            self.regiones = otsu(self.img_ski,self.umbral_otsu)
-            self.seguras, self.inseguras = contar(self.regiones, self.prom, self.std)
-            self.inseguras = sorted(self.inseguras, key=lambda x: x.area, reverse=False)
-            self.respond(json.dumps({
-            	"estudio":estudio,
-            	"seguras":self.seguras, 
-            	"inseguras":self.inseguras
-            	}))
+
+            datos={"estudio":estudio}
+            json_response=json.dumps(datos, ensure_ascii=False)
+            self.respond(json_response,"application/json")
 
     def do_GET(self):
         response = """
@@ -70,13 +49,23 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         self.respond(response)
 
-    def respond(self, response, status=200):
+    def respond(self, response, content="text/html", status=200):
         self.send_response(status)
-        self.send_header("Content-type", "text/html")
-        self.send_header("Content-length", len(response))
+        self.send_header("Content-type", content)
         self.end_headers()
-        self.wfile.write(response)  
+        self.wfile.write(bytes(response, "utf-8"))
 
 
-server = HTTPServer(('', 8080), StoreHandler)
-server.serve_forever()
+hostName = '0.0.0.0'
+hostPort = 8080
+
+myServer = HTTPServer((hostName, hostPort), StoreHandler)
+print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))
+
+try:
+    myServer.serve_forever()
+except KeyboardInterrupt:
+    pass
+
+myServer.server_close()
+print(time.asctime(), "Server Stops - %s:%s" % (hostName, hostPort))
