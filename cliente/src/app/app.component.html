@@ -1,2 +1,9 @@
 <input type="file" name="file" (change)="inputFile($event)">
-<canvas #layout></canvas>
+<app-canvas-muestra *ngIf="image"
+ [image]="image"
+    (topChange)="top = $event" (bottomChange)="bottom = $event" 
+    (leftChange)="left = $event" (rightChange)="right = $event"
+    [(centerX)]="centerX" [(centerY)]="centerY"
+    [(zoomLevel)]="zoomLevel" [maxZoom]="maxZoom" [minZoom]="0"
+    (canvasWidthChange)="canvasWidth = $event" (canvasHeightChange)="canvasHeight = $event"
+></app-canvas-muestra>

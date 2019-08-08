@@ -13,17 +13,3 @@ services:
     command: python3 server.py
     environment:
       PYTHONUNBUFFERED : 1
-  cliente:
-    build:
-      context: cliente/
-      dockerfile: Dockerfile
-    image: 'semillero/cliente'
-    ports:
-      - '4201:4200'
-    volumes:
-      - './cliente:/app'
-      - /app/node_modules/
-    depends_on:
-      - servidor
-    links:
-      - servidor

@@ -5,6 +5,16 @@ import time
 from semillas import contar
 from image import *
 from io import BytesIO
+def tuplify(listything):
+    if isinstance(listything, list): return tuple(map(tuplify, listything))
+    if isinstance(listything, dict): return {k:tuplify(v) for k,v in listything.items()}
+    return listything
+def regionTojson(region):
+    return {
+        "area": str(region.area),
+        "bbox": tuplify(region.bbox),
+        "centroid": tuplify(region.centroid)
+    }
 
 class StoreHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -44,10 +54,9 @@ class StoreHandler(BaseHTTPRequestHandler):
 
             datos={
                 "estudio":estudio,
-                "seguras":len(self.seguras), 
-                "inseguras":len(self.inseguras)
+                "seguras": [regionTojson(region) for region in self.seguras ] , 
+                "inseguras":[regionTojson(region) for region in self.inseguras ] 
                 }
-            print(datos)
             json_response=json.dumps(datos, ensure_ascii=False)
             self.respond(json_response,"application/json")
 
