@@ -47,6 +47,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/assets/leaflet/leaflet.css",
               "src/styles.scss"
             ],
             "scripts": []

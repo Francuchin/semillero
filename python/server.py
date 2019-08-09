@@ -28,8 +28,13 @@ class StoreHandler(BaseHTTPRequestHandler):
         else:
             form = cgi.FieldStorage(fp=self.rfile,headers=self.headers,environ={'REQUEST_METHOD': 'POST'})
             filename = form['file'].filename
-            estudio = form['estudio'].value
-            self.muestras = {0:(50,50,550,900)}#form['muestras'].value
+            x = int(form['x'].value)
+            y = int(form['y'].value)
+            w = int(form['w'].value)
+            h = int(form['h'].value)
+            print("pito")
+            #self.muestras = {0:(50,50,550,900)}
+            self.muestras = {0:(x,y,w,h)}
             data = form['file'].file.read()
             open("/tmp/%s"%filename, "wb").write(data)
             self.ruta = "/tmp/%s"%filename # 742 semillas contadas a mano en 20 minutos
@@ -53,7 +58,6 @@ class StoreHandler(BaseHTTPRequestHandler):
             self.inseguras = sorted(self.inseguras, key=lambda x: x.area, reverse=False)
 
             datos={
-                "estudio":estudio,
                 "seguras": [regionTojson(region) for region in self.seguras ] , 
                 "inseguras":[regionTojson(region) for region in self.inseguras ] 
                 }
@@ -81,8 +85,17 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         self.respond(response)
 
+    def do_OPTIONS(self):
+        self.send_response(200, "ok")
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With, Content-type")
+
     def respond(self, response, content="text/html", status=200):
         self.send_response(status)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header("Content-type", content)
         self.end_headers()
         self.wfile.write(bytes(response, "utf-8"))

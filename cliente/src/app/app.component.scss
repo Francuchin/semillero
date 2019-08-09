@@ -1,4 +1,7 @@
-canvas {
+.controls{
+	height: 3rem;
+}
+.map{
+    height: calc(100vh - 3rem);
     width: 100%;
-    height: 100%;
 }
