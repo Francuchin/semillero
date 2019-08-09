@@ -110,14 +110,14 @@ export class AppComponent implements OnInit{
             let p1:any = [maxh-bb[0],bb[1]]
             let p2:any = [maxh-bb[2],bb[3]]
             let resB = new LatLngBounds([p1,p2])
-            rectangle(resB, {color: "#5f5", weight: 1}).addTo(this.map)
+            rectangle(resB, {color: "#55ff55", weight: 1}).addTo(this.map)
           }
           for(let result of inseguras){
             let bb = result.bbox
             let p1:any = [maxh-bb[0],bb[1]]
             let p2:any = [maxh-bb[2],bb[3]]
             let resB = new LatLngBounds([p1,p2])
-            rectangle(resB, {color: "#f55", weight: 1}).addTo(this.map)
+            rectangle(resB, {color: "#ff5555", weight: 1}).addTo(this.map)
           }
         })      
     })
