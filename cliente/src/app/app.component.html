@@ -2,16 +2,5 @@
 	<input type="file" name="file" (change)="inputFile($event)">
 	<button (click)="analizamesta()">analizar</button>
 </div>
-<!--<app-canvas-muestra *ngIf="image"
- [image]="image"
-    (topChange)="top = $event" (bottomChange)="bottom = $event" 
-    (leftChange)="left = $event" (rightChange)="right = $event"
-    [(centerX)]="centerX" [(centerY)]="centerY"
-    [(zoomLevel)]="zoomLevel" [maxZoom]="maxZoom" [minZoom]="0"
-    (canvasWidthChange)="canvasWidth = $event" (canvasHeightChange)="canvasHeight = $event"
-></app-canvas-muestra>-->
-<div class="map"
-  leaflet 
-  [leafletOptions]="options"
-  (leafletMapReady)="leafletMapReady($event)" >
-</div>
+<app-canvas-muestra 
+></app-canvas-muestra>

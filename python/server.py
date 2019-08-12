@@ -1,10 +1,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import json
+import codecs, json
 import cgi
 import time
 from semillas import contar
 from image import *
 from io import BytesIO
+
 def tuplify(listything):
     if isinstance(listything, list): return tuple(map(tuplify, listything))
     if isinstance(listything, dict): return {k:tuplify(v) for k,v in listything.items()}
@@ -12,8 +13,10 @@ def tuplify(listything):
 def regionTojson(region):
     return {
         "area": str(region.area),
+        "cantidad": str(region.cantidad),
         "bbox": tuplify(region.bbox),
-        "centroid": tuplify(region.centroid)
+        "centroid": tuplify(region.centroid),
+        "convex_image":region.convex_image.tolist()
     }
 
 class StoreHandler(BaseHTTPRequestHandler):
@@ -55,11 +58,10 @@ class StoreHandler(BaseHTTPRequestHandler):
             self.umbral_otsu = np.mean(u)
             self.regiones = otsu(self.img_ski,self.umbral_otsu)
             self.seguras, self.inseguras = contar(self.regiones, self.prom, self.std)
-            self.inseguras = sorted(self.inseguras, key=lambda x: x.area, reverse=False)
-
+            
             datos={
-                "seguras": [regionTojson(region) for region in self.seguras ] , 
-                "inseguras":[regionTojson(region) for region in self.inseguras ] 
+                "seguras": self.seguras, 
+                "inseguras": self.inseguras  
                 }
             json_response=json.dumps(datos, ensure_ascii=False)
             self.respond(json_response,"application/json")
