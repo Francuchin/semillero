@@ -35,7 +35,6 @@ class StoreHandler(BaseHTTPRequestHandler):
             y = int(form['y'].value)
             w = int(form['w'].value)
             h = int(form['h'].value)
-            print("pito")
             #self.muestras = {0:(50,50,550,900)}
             self.muestras = {0:(x,y,w,h)}
             data = form['file'].file.read()
@@ -83,8 +82,7 @@ class StoreHandler(BaseHTTPRequestHandler):
         <p><input type="submit" value="Upload"></p>
         </form>
         </body></html>
-        """        
-
+        """    
         self.respond(response)
 
     def do_OPTIONS(self):
