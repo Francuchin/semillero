@@ -4,7 +4,6 @@ import {map} from 'rxjs/operators';
 import { AnalisisService } from './services/analisis.service';
 import { CanvasMuestraComponent } from './components/canvas-muestra/canvas-muestra.component'
 
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -49,6 +48,7 @@ export class AppComponent implements OnInit{
         Math.round(x), 
         Math.round(y),
         ).subscribe(res=>{
+          this.canvas.removerMuestra();
           let seguras = res.seguras
           let inseguras = res.inseguras
           for(let result of seguras){
