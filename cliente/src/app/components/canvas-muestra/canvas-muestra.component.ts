@@ -14,7 +14,7 @@ import { latLng,
     Rectangle,
     divIcon,
     polygon,
-    Poligon,
+    Polygon,
     LayerGroup,
     Marker,
     Map,
@@ -54,18 +54,21 @@ class Recuadro {
   public maxh:number;
   public color:string;
   public result:any;
+  public revisar:boolean;
   public rectangulo:Rectangle;     
       
   showConvexHull() {  
     var latlngArray = [];
     let x = this.maxh-this.result.bbox[0]
+    //let sizeX = this.result.bbox[3] - this.result.bbox[1]
+    //let sizeY = this.result.bbox[2] - this.result.bbox[0]
     let y = parseInt(this.result.bbox[1])
     let convex:boolean[][] = this.result.convex_image
     let huul = convex.map((c,i)=>c.map((r,j)=>{
       if(!r) return false;
       return {
-        x:x - convex.length + i,
-        y:y + c.length - j
+        x:x - i ,//- parseInt(`${sizeX}`),
+        y:y + j //+ parseInt(`${sizeY}`)
       }
     }).filter(col=>!!col)).filter(coors=>!!coors.filter(coor=>!!coor).length).reduce((prev,next)=>prev.concat(next))
     //console.log(huul)
@@ -83,9 +86,10 @@ class Recuadro {
   }
 
 
-  constructor(map:Map, result:any, maxh:number) {
+  constructor(map:Map, result:any, maxh:number, revisar:boolean) {
     this.map=map;
     this.result = result;
+    this.revisar = revisar;
     this.maxh = maxh;
     this.cantidad = result.cantidad;
     this.correccion = result.cantidad;
@@ -108,7 +112,7 @@ class Recuadro {
     ])
     this.map.fitBounds(fit);
     this.rectangulo.setStyle({color:'#00000000'})
-    return rectangle(fit, {color: "#FF000050", weight: 2}).addTo(this.map)
+    return rectangle(fit, {color: "#0000F050", weight: 2}).addTo(this.map)
   }
   public mostrar = () =>this.rectangulo.setStyle({color:this.color})
 }
@@ -130,7 +134,7 @@ export class CanvasMuestraComponent implements AfterViewInit {
   puntouno=null;
   public 
   public muestra:Rectangle=null
-  public hull:Poligon=null
+  public hull:Polygon=null
   actual=0;
   resultados:Recuadro[]=[];
   ngAfterViewInit(){
@@ -147,18 +151,20 @@ export class CanvasMuestraComponent implements AfterViewInit {
     this.imageoverlay = imageOverlay(img.src,this.imageBounds).addTo(this.map);
   }
   public corregirSiguiente(){
+    this.actual=this.resultados.length>this.actual?this.actual+1:0;
     this.removerMuestra();
     if(this.resultados.length > this.actual){
       let actual = this.resultados[this.actual];
-      if(actual)
-        actual.mostrar();
-    }
-    this.actual=this.resultados.length>this.actual?this.actual+1:0;
-    if(this.resultados.length > this.actual){
-      let actual = this.resultados[this.actual];
-      if(actual) {
-        this.muestra = actual.centrar()
-        this.hull = actual.showConvexHull()
+      if(actual){
+        if(!actual.revisar){
+          this.actual=this.actual+1;
+          return this.corregirSiguiente();
+        }else {
+          actual.mostrar();
+          this.actual=this.actual+1;
+          this.hull = actual.showConvexHull();
+          actual.centrar();
+        }
       }
     }
   }
@@ -176,9 +182,9 @@ export class CanvasMuestraComponent implements AfterViewInit {
 
   */
 
-  public dibujarRectangulo(result, maxh, color){// result.centroid, result.convex_image
+  public dibujarRectangulo(result, maxh, revisar){// result.centroid, result.convex_image
     this.maxh = maxh
-    this.resultados.push(new Recuadro(this.map,result,maxh))
+    this.resultados.push(new Recuadro(this.map,result,maxh,revisar))
   }
 
   click= $event=>{

@@ -52,10 +52,10 @@ export class AppComponent implements OnInit{
           let seguras = res.seguras
           let inseguras = res.inseguras
           for(let result of seguras){
-            this.canvas.dibujarRectangulo(result, maxh, "#55ff55")
+            this.canvas.dibujarRectangulo(result, maxh, false)
           }
           for(let result of inseguras){
-            this.canvas.dibujarRectangulo(result, maxh, "#ff5555")
+            this.canvas.dibujarRectangulo(result, maxh,true)
           }
         })      
     })
