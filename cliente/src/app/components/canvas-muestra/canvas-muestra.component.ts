@@ -72,20 +72,17 @@ class Recuadro {
       }
     }).filter(col=>!!col)).filter(coors=>!!coors.filter(coor=>!!coor).length).reduce((prev,next)=>prev.concat(next))
     //console.log(huul)
-      var points = latlngArray.map(element=> { 
-          return {
-              x: element.lat,
-              y: element.lng
-            }
-          })
-      var convexHullPoints = convexHull(huul);
-      //console.log(convexHullPoints)
-      var leafletHull = convexHullPoints.map(element=>([element.x,element.y]))
-      return polygon(leafletHull,{color:'#FF0000'}).addTo( this.map);     
-      
+    var points = latlngArray.map(element=> { 
+        return {
+            x: element.lat,
+            y: element.lng
+          }
+        })
+    var convexHullPoints = convexHull(huul);
+    //console.log(convexHullPoints)
+    var leafletHull = convexHullPoints.map(element=>([element.x,element.y]))
+    return polygon(leafletHull,{color:'#FF0000'}).addTo( this.map);        
   }
-
-
   constructor(map:Map, result:any, maxh:number, revisar:boolean) {
     this.map=map;
     this.result = result;
@@ -101,7 +98,7 @@ class Recuadro {
     let p2:any = [this.maxh-bb[2],bb[3]]
     let resB = new LatLngBounds([p1,p2])
     let cantidad = parseInt(this.result.cantidad)
-    this.color = cantidad<.5?"#0000ff30": cantidad>1.8?"#ff000080": "#00ff0050"
+    this.color = cantidad<.5?"#0000ff30": cantidad>1.8?"#ff000080": "#00ff00"
     this.rectangulo = rectangle(resB, {color: this.color, weight: 1}).addTo(this.map)
   }
   public centrar(){
@@ -156,14 +153,14 @@ export class CanvasMuestraComponent implements AfterViewInit {
     if(this.resultados.length > this.actual){
       let actual = this.resultados[this.actual];
       if(actual){
+        actual.mostrar();
         if(!actual.revisar){
           this.actual=this.actual+1;
           return this.corregirSiguiente();
         }else {
-          actual.mostrar();
           this.actual=this.actual+1;
           this.hull = actual.showConvexHull();
-          actual.centrar();
+          this.muestra = actual.centrar();
         }
       }
     }

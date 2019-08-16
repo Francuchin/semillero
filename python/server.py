@@ -21,6 +21,7 @@ def regionTojson(region):
 
 class StoreHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        inicio = time.time()
         length = int(self.headers['content-length'])
         if length > 10000000:
             read = 0
@@ -56,9 +57,17 @@ class StoreHandler(BaseHTTPRequestHandler):
             self.prom, self.std = np.mean(p) , np.mean(s)
             self.umbral_otsu = np.mean(u)
             self.regiones = otsu(self.img_ski,self.umbral_otsu)
-            self.seguras, self.inseguras = contar(self.regiones, self.prom, self.std)
-            
+            self.seguras, self.inseguras, area_promedio, area_std, cantidad  = contar(self.regiones, self.prom, self.std)
+            fin = time.time()      
+
             datos={
+                "inicio":inicio,
+                "fin":fin,
+                "cantidad_estimada":cantidad,
+                "color_prom":self.prom,
+                "color_std":self.std,
+                "area_promedio":area_promedio, 
+                "area_std":area_std,
                 "seguras": self.seguras, 
                 "inseguras": self.inseguras  
                 }

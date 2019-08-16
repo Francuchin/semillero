@@ -22,8 +22,10 @@ def contar(regiones, area_promedio, area_std):
 	seguro = []
 	inseguro = []
 	area_promedio, area_std = getpromstd(regiones)
+	total = 0
 	for region in regiones:
 		if region.area < area_promedio + (area_std * error) and region.area > area_promedio - (area_std * error):
+			total = total + 1;
 			seguro.append(regionTojson(region,1))
 		else:
 			if region.area > area_promedio - 2 * area_std:
@@ -34,5 +36,6 @@ def contar(regiones, area_promedio, area_std):
 					cantidad = (region.area - area_std) / area_promedio
 				else:
 					cantidad = (region.area + area_std) / area_promedio
+				total = total + int(cantidad)
 				inseguro.append(regionTojson(region,cantidad))
-	return seguro, inseguro
+	return seguro, inseguro, area_promedio, area_std, total
